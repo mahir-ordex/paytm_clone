@@ -1,0 +1,4 @@
+node_modules
+.env
+front_End/src/assets/react.svg
+public/Profile-PNG-Photo.png
