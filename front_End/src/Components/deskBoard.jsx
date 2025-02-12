@@ -61,8 +61,8 @@ function DeskBoard() {
             {/* Send Money Modal */}
             {showModal && selectedUser && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-                        <h2 className="text-xl font-semibold mb-4">Send Money to {selectedUser.firstName} {selectedUser.lastName}</h2>
+                    <div className="bg-white p-6 h-72 rounded-lg shadow-lg w-80">
+                        <h2 className="text-xl font-semibold mb-8">Send Money to {selectedUser.firstName} {selectedUser.lastName}</h2>
                         <input 
                             type="number" 
                             placeholder="Enter amount" 
@@ -70,7 +70,7 @@ function DeskBoard() {
                             onChange={(e) => setAmount(e.target.value)} 
                             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <div className="flex justify-between mt-4">
+                        <div className="flex justify-between mt-12">
                             <button onClick={closeSendMoneyModal} className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition">Cancel</button>
                             <button onClick={handleSendMoney} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Send</button>
                         </div>
