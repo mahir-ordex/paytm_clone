@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const { login } = useAuth(); 
   const [formData, setFormData] = useState({ userName: "", password: "" });
+  const navigate = useNavigate();  // for navigation to home page after successful login
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,8 +18,15 @@ function Login() {
         withCredentials: true,
       })
       .then((res) => {
-        console.log("Login Response:", res.data.user, res.data.token);
-        login(res.data.user, res.data.token); 
+        console.log("loginpage",res.data.success)
+        if(res.status===200 && res.data.success === true) {
+
+          login(res.data.user, res.data.token); 
+          console.log("inside if");
+          navigate("/")
+        
+
+        }
       })
       .catch((error) => {
         console.error("Login Error:", error.response?.data || error.message);

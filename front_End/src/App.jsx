@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Login from './Components/Login';
 import Sign_Up from './Components/Sign_Up';
+import DeskBoard from './Components/deskBoard';
 import './App.css';
 import PrivateRoute from './util/PriveteRoute';
 
@@ -9,8 +10,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Sign_Up />} />
-        {/* <Route path="/main" element={<PrivateRoute><Home /></PrivateRoute>} />
-        <Route path="/payment" element={<PrivateRoute><PaymentPage /></PrivateRoute>} /> */}
+      <Route path="/" element={<PrivateRoute><DeskBoard /></PrivateRoute>} />
+        {/* <Route path="/payment" element={<PrivateRoute><PaymentPage /></PrivateRoute>} /> */}
 
     </Routes>
   );

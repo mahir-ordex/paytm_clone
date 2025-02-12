@@ -1,6 +1,5 @@
 const { default: mongoose } = require('mongoose');
 const Account = require('../model/accountModel')
-
 const Transaction = require('../model/transactionModel')
 
 const transaction = async (req, res) => {
@@ -54,10 +53,10 @@ const transaction = async (req, res) => {
 
 const transactionHistory = async(req,res) =>{
     try{
-        const {_id }= req.body;
-        if(!_id) return res.status(400).send('Please provide user id')
+        const {id }= req.body;
+        if(!id) return res.status(400).send('Please provide user id')
 
-        const allTransaction =await Transaction.find({$or:[{sender:_id},{receiver:_id}]})
+        const allTransaction =await Transaction.find({$or:[{sender:id},{receiver:id}]})
         res.status(200).json({message:'Transaction History', transactions:allTransaction})
     }catch(err){
         console.error('Transaction History Failed:', err.message);

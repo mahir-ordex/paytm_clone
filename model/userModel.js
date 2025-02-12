@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
     },
     profilePicture:{
         type: String,
-        default: '/public/Profile-PNG-Photo.png',
+        default: 'https://as2.ftcdn.net/v2/jpg/10/54/09/27/1000_F_1054092780_liObYQo10Pn2xOo4CmGYZMeWiw0P7CT2.jpg',
     }
 })
 

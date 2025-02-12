@@ -49,7 +49,7 @@ const signIn = async(req, res) => {
       const { password: _, ...other } = user._doc;
       const token = jwt.sign({ userId: other._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
     console.log("Generated JWT token:", token);
-      res.status(200).json({ message: "Login successful", user: other,token });
+      res.status(200).json({ message: "Login successful", user: other,token,success:true});
     } catch (error) {
       console.error("Error in login:", error);
       res.status(500).json({ error: error.message });

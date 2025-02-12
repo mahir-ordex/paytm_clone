@@ -3,10 +3,10 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 const userRoute = require('./routes/userRoutes');
-const authenticateToken = require('./middleware/authMiddleware');
+const accountRoute = require('./routes/accountRoutes');
+const daskBoardRoute = require('./routes/daskBoardRoute');
 
 const app = express();
-
 
 app.use(cors({
     origin: 'http://localhost:5173',  
@@ -14,8 +14,10 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use('/api/users', userRoute);
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/api/users', userRoute);
+app.use('/api/account', accountRoute);
+app.use('/api/daskboard', daskBoardRoute);
 
 mongoose.connect('mongodb://127.0.0.1:27017/paytm')
     .then(() => console.log('Connected to MongoDB'))
