@@ -1,36 +1,29 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ userName: "", password: "" });
-  const navigate = useNavigate();  // for navigation to home page after successful login
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
-
-    axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}/users/signin`, formData, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        console.log("loginpage",res.data.success)
-        if(res.status===200 && res.data.success === true) {
-
-          login(res.data.user, res.data.token); 
-          console.log("inside if");
-          navigate("/")
-        
-
-        }
-      })
-      .catch((error) => {
-        console.error("Login Error:", error.response?.data || error.message);
-      });
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/users/signin`,
+        formData,
+        { withCredentials: true }
+      );
+      if (res.status === 200 && res.data.success) {
+        login(res.data.user, res.data.token);
+        navigate("/");
+      }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || "Login failed. Please try again.");
+    }
   };
 
   const handleInputChange = (e) => {
@@ -38,21 +31,45 @@ function Login() {
   };
 
   return (
-    <>
-      <h1>Login Page</h1>
-      <form onSubmit={handleSubmit}>
-        <label>User Name:</label>
-        <input type="text" name="userName" required onChange={handleInputChange} />
-        <br />
-        <br />
-        <label>Password:</label>
-        <input type="password" name="password" required onChange={handleInputChange} />
-        <br />
-        <input type="submit" value="Submit" />
-        <br />
-        <Link to="/signup">Create An Account?</Link>
-      </form>
-    </>
+    <div className="flex items-center justify-center h-screen overflow-hidden m-0 bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h1>
+        {errorMessage && <p className="text-red-500 text-sm mb-4 text-center">{errorMessage}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">User Name</label>
+            <input
+              type="text"
+              name="userName"
+              required
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your username"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Password</label>
+            <input
+              type="password"
+              name="password"
+              required
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your password"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Login
+          </button>
+        </form>
+        <p className="text-center text-gray-600 mt-4">
+          Don't have an account? <Link to="/signup" className="text-blue-500 hover:underline">Sign up</Link>
+        </p>
+      </div>
+    </div>
   );
 }
 
