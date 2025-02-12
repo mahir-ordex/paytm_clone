@@ -1,55 +1,70 @@
-const { default: mongoose } = require('mongoose');
-const Account = require('../model/accountModel')
-const Transaction = require('../model/transactionModel')
+const mongoose = require("mongoose");
+const Transaction = require("../model/transactionModel"); 
+const Account = require("../model/accountModel"); 
 
 const transaction = async (req, res) => {
-    const section = await mongoose.startSession()
+    const session = await mongoose.startSession();
     const { senderId, receiverId, amount } = req.body;
 
-    if (!senderId || !receiverId || !amount) return res.status(400).send('Please provide all fields')
-    try {
+    if (!senderId || !receiverId || !amount) {
+        return res.status(400).json({ message: "Please provide all fields", success: false });
+    }
 
-        section.startTransaction();
-        const sender = await Account.findOne({ userId: senderId })
-        const receiver = await Account.findOne({ userId: receiverId })
-        if (!sender || !receiver) return res.status(404).send('User not found')
-        if (sender.balance < amount) return res.status(400).send('Insufficient balance')
+    try {
+        session.startTransaction();
+        // const senderId = new mongoose.Types.ObjectId(senderId);
+        // const receiverId = new mongoose.Types.ObjectId(receiverId);
+
+        const sender = await Account.findOne({ userId: senderId });
+        const receiver = await Account.findOne({ userId: receiverId });
+
+        if (!sender || !receiver) return res.status(404).json({ message: "User not found", success: false });
+        if (sender.balance < amount) return res.status(400).json({ message: "Insufficient balance", success: false });
 
         await Account.updateOne(
             { userId: senderId },
             { $inc: { balance: -amount } },
             { session }
         );
+
         await Account.updateOne(
-            {userId: receiverId},
-            {$inc: { amount: amount } },
+            { userId: receiverId },
+            { $inc: { balance: amount } },
             { session }
-        )
+        );
+
         const newTransaction = await Transaction.create(
             [
                 {
-                    sender: senderId,
-                    receiver: receiverId,
+                    senderId: senderId,
+                    receiverId: receiverId,
                     amount: amount,
                     timestamp: new Date(),
                 }
             ],
             { session }
         );
-        await section.commitTransaction();
+
+        await session.commitTransaction();
         session.endSession();
 
-        console.log('Transaction Successful');
-        res.status(200).json({ message: 'Transaction Successful', transaction: newTransaction[0] });
+        console.log("Transaction Successful");
+        return res.status(200).json({
+            message: "Transaction Successful",
+            transaction: newTransaction[0],
+            success: true,
+        });
 
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
 
-        console.error('Transaction Failed:', error.message);
-        res.status(500).send(`Transaction Failed: ${error.message}`);
+        console.error("Transaction Failed:", error.message);
+        return res.status(500).json({ message: `Transaction Failed: ${error.message}`, success: false });
     }
-}
+};
+
+
 
 const transactionHistory = async(req,res) =>{
     try{

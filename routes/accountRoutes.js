@@ -3,8 +3,8 @@ const {transaction,transactionHistory} = require('../controller/account.controll
 const authenticateToken = require('../middleware/authMiddleware')
 const route = express.Router();
 
-route.post('/transaction', authenticateToken, transaction);
+route.post('/transaction', transaction);
 
-route.get('/transaction-history', authenticateToken, transactionHistory);
+route.get('/transaction-history', transactionHistory);
 
 module.exports = route;

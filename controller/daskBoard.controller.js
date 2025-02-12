@@ -22,7 +22,7 @@ const handleShowAllUsers = async (req, res) => {
                         { senderId: user._id, receiverId: loggedInUserId }
                     ]
                 })
-                .sort({ createdAt: -1 }) // Get the latest transaction
+                .sort({timestamp:-1}) // Get the latest transaction
                 .limit(1);
 
                 return {
