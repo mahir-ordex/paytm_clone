@@ -34,7 +34,7 @@ function SignUp() {
         { withCredentials: true }
       );
       login(res.data.user, res.data.token);
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "Signup failed. Please try again.");
     }
