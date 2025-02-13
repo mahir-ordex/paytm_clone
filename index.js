@@ -4,12 +4,13 @@ const mongoose = require('mongoose');
 const path = require('path');
 const userRoute = require('./routes/userRoutes');
 const accountRoute = require('./routes/accountRoutes');
-const daskBoardRoute = require('./routes/daskBoardRoute');
+const deskBoardRoute = require('./routes/deskBoardRoutes');
+const authenticateToken = require('./middleware/authMiddleware');
 
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5174',  
+    origin: ['http://localhost:5173','http://localhost:5174'],  
     credentials: true
 }));
 
@@ -17,7 +18,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/api/users', userRoute);
 app.use('/api/account', accountRoute);
-app.use('/api/daskboard', daskBoardRoute);
+app.use('/api/daskboard', deskBoardRoute);
 
 mongoose.connect('mongodb://127.0.0.1:27017/paytm')
     .then(() => console.log('Connected to MongoDB'))

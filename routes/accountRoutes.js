@@ -4,7 +4,6 @@ const authenticateToken = require('../middleware/authMiddleware')
 const route = express.Router();
 
 route.post('/transaction', transaction);
-
-route.get('/transaction-history', transactionHistory);
+route.get('/transaction-history/:id', transactionHistory);
 
 module.exports = route;

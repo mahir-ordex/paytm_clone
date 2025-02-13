@@ -4,6 +4,7 @@ import Sign_Up from './Components/Sign_Up';
 import DeskBoard from './Components/deskBoard';
 import './App.css';
 import PrivateRoute from './util/PriveteRoute';
+import Passbook from './Components/Passbook';
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Sign_Up />} />
       <Route path="/" element={<PrivateRoute><DeskBoard /></PrivateRoute>} />
-        {/* <Route path="/payment" element={<PrivateRoute><PaymentPage /></PrivateRoute>} /> */}
+        <Route path="/payment" element={<PrivateRoute><Passbook /></PrivateRoute>} />
 
     </Routes>
   );

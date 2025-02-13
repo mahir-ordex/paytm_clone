@@ -29,7 +29,7 @@ function SignUp() {
     if (!validateForm()) return;
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/users/signup`,
+        `${import.meta.env.VITE_BACKEND_URL}/users/login`,
         formData,
         { withCredentials: true }
       );

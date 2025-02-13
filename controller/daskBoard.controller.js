@@ -3,7 +3,8 @@ const Transaction = require('../model/transactionModel');
 
 const handleShowAllUsers = async (req, res) => {
     try {
-        console.log("req.params.id:", req.params.id);
+        // console.log("Request Headers: " + JSON.stringify(req.headers))
+        // console.log("req.params.id:", req.params.id);
 
         const loggedInUserId = req.params.id; // Get logged-in user ID
 
@@ -15,14 +16,14 @@ const handleShowAllUsers = async (req, res) => {
                 if (user._id.toString() === loggedInUserId) {
                     return { ...user._doc, lastTransaction: null }; // Exclude self transactions
                 }
-
+                
                 const lastTransaction = await Transaction.findOne({
                     $or: [
                         { senderId: loggedInUserId, receiverId: user._id },
                         { senderId: user._id, receiverId: loggedInUserId }
                     ]
                 })
-                .sort({timestamp:-1}) // Get the latest transaction
+                .sort({timestamp:-1}) 
                 .limit(1);
 
                 return {

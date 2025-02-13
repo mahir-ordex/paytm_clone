@@ -3,8 +3,11 @@ const Transaction = require("../model/transactionModel");
 const Account = require("../model/accountModel"); 
 
 const transaction = async (req, res) => {
-    const session = await mongoose.startSession();
     const { senderId, receiverId, amount } = req.body;
+
+    console.log("Transaction Request:", senderId, receiverId, amount);
+
+    const session = await mongoose.startSession();
 
     if (!senderId || !receiverId || !amount) {
         return res.status(400).json({ message: "Please provide all fields", success: false });
@@ -12,36 +15,40 @@ const transaction = async (req, res) => {
 
     try {
         session.startTransaction();
-        // const senderId = new mongoose.Types.ObjectId(senderId);
-        // const receiverId = new mongoose.Types.ObjectId(receiverId);
 
-        const sender = await Account.findOne({ userId: senderId });
-        const receiver = await Account.findOne({ userId: receiverId });
+        // Convert to ObjectId
+        const senderObjectId = new mongoose.Types.ObjectId(senderId);
+        const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
 
-        if (!sender || !receiver) return res.status(404).json({ message: "User not found", success: false });
-        if (sender.balance < amount) return res.status(400).json({ message: "Insufficient balance", success: false });
+        const sender = await Account.findOne({ userId: senderObjectId });
+        const receiver = await Account.findOne({ userId: receiverObjectId });
+
+        if (!sender) 
+            return res.status(404).json({ message: "Sender User not found", success: false });
+        if (!receiver) 
+            return res.status(404).json({ message: "Receiver User not found", success: false });
+        if (sender.balance < amount) 
+            return res.status(400).json({ message: "Insufficient balance", success: false });
 
         await Account.updateOne(
-            { userId: senderId },
+            { userId: senderObjectId },
             { $inc: { balance: -amount } },
             { session }
         );
 
         await Account.updateOne(
-            { userId: receiverId },
+            { userId: receiverObjectId },
             { $inc: { balance: amount } },
             { session }
         );
 
         const newTransaction = await Transaction.create(
-            [
-                {
-                    senderId: senderId,
-                    receiverId: receiverId,
-                    amount: amount,
-                    timestamp: new Date(),
-                }
-            ],
+            [{
+                senderId: senderObjectId,
+                receiverId: receiverObjectId,
+                amount,
+                timestamp: new Date(),
+            }],
             { session }
         );
 
@@ -68,10 +75,10 @@ const transaction = async (req, res) => {
 
 const transactionHistory = async(req,res) =>{
     try{
-        const {id }= req.body;
+        const id= req.params.id;
         if(!id) return res.status(400).send('Please provide user id')
 
-        const allTransaction =await Transaction.find({$or:[{sender:id},{receiver:id}]})
+        const allTransaction =await Transaction.find({$or:[{senderId:id},{receiverId:id}]})
         res.status(200).json({message:'Transaction History', transactions:allTransaction})
     }catch(err){
         console.error('Transaction History Failed:', err.message);

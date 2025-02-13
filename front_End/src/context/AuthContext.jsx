@@ -10,12 +10,20 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const savedToken = localStorage.getItem("token");
         const savedUser = localStorage.getItem("user");
-        if (savedToken && savedUser) {
-            setToken(savedToken);
-            setUser(JSON.parse(savedUser));
+
+        try {
+            if (savedToken && savedUser) {
+                setToken(savedToken);
+                setUser(JSON.parse(savedUser));
+            }
+        } catch (error) {
+            console.error("Error parsing saved user:", error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false); // Set loading to false after checking
     }, []);
+
+    
 
     const login = (data, token) => {
         setUser(data);
