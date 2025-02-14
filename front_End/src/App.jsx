@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
-import Login from './Components/Login';
-import Sign_Up from './Components/Sign_Up';
-import DeskBoard from './Components/deskBoard';
+import Login from './Pages/Login';
+import Sign_Up from './Pages/Sign_Up';
+import DeskBoard from './Pages/deskBoard';
 import './App.css';
 import PrivateRoute from './util/PriveteRoute';
-import Passbook from './Components/Passbook';
-import Profile from './Components/Profile';
+import Passbook from './Pages/Passbook';
+import Profile from './Pages/Profile';
 
 function App() {
   return (

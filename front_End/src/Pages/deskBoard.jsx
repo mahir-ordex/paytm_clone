@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { Search, X } from 'lucide-react';
 
 const DashBoard = () => {
     const [data, setData] = useState(null);
