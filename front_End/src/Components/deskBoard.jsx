@@ -168,7 +168,13 @@ const DashBoard = () => {
     const fetchPassbookData = async () => {
         try {
             const res = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}/account/transaction-history/67adc51cb57bb8c41bc68802`
+                `${import.meta.env.VITE_BACKEND_URL}/account/transaction-history/${LogedInUser.user._id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${LogedInUser.token}`
+                    },
+                    withCredentials: true   
+                },
             )
             setTotalTransaction(res.data.transactions)
 
@@ -195,14 +201,14 @@ const DashBoard = () => {
     const handleShowData = async () => {
         try {
             const res = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}/daskboard/show-all-users/67adc66433641a93c8b00464`,
+                `${import.meta.env.VITE_BACKEND_URL}/daskboard/show-all-users/${LogedInUser.user._id}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${LogedInUser.token}`
-                    }
+                    },
+                    withCredentials: true   
                 },
-                { withCredentials: true }
-            );
+            );            
             setData(res.data);
         } catch (e) {
             console.error("Error fetching data:", e);
@@ -225,7 +231,12 @@ const DashBoard = () => {
                     receiverId: selectedUser._id,
                     amount: Number(amount)
                 },
-                { withCredentials: true }
+                {
+                    headers: {
+                        'Authorization': `Bearer ${LogedInUser.token}`
+                    },
+                    withCredentials: true   
+                },
             );
 
             if (res.status === 200 && res.data.success) {

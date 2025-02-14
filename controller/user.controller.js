@@ -30,43 +30,47 @@ const Sign_Up = async (req, res) => {
 
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
-    console.log("Generated JWT token:", token);
-    req.user = token;
-    console.log("Provided some toke to Req.User :",req.user);
 
-    res.status(201).json({ message: "User registered successfully",token:token });
+    res
+    .cookie("token", token, { httpOnly: true, expiresIn: "24h" })
+    .status(201)
+    .json({ message: "User registered successfully",token:token })
   } catch (error) {
     console.error("Error in Sign_Up:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-const signIn = async(req, res) => {
-    try {
-      const { userName, password } = req.body;
-      if (!userName ||!password) {
-        return res.status(400).json({ message: "All fields are required" });
-      }
-      const user = await User.findOne({ userName });
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      const isMatch = bcrypt.compareSync(password, user.password);
+const signIn = async (req, res) => {
+  try {
+    const { userName, password } = req.body;
 
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      const { password: _, ...other } = user._doc;
-      const token = jwt.sign({ userId: other._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
-      req.user = token;
-      console.log("Provided some toke to Req.User :",req.user);
-    console.log("Generated JWT token:", token);
-      res.status(200).json({ message: "Login successful", user: other,token,success:true});
-    } catch (error) {
-      console.error("Error in login:", error);
-      res.status(500).json({ error: error.message });
+    if (!userName || !password) {
+      return res.status(400).json({ message: "All fields are required" });
     }
-  };
+
+    const user = await User.findOne({ userName });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const { password: _, ...other } = user._doc;
+    const token = jwt.sign({ userId: other._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+
+    res
+      .cookie("token", token, { httpOnly: true, expiresIn: "24h" })
+      .status(200)
+      .json({ message: "Login successful", user: other,token, success: true });
+  } catch (error) {
+    console.error("Error in login:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 module.exports = { Sign_Up, signIn };
 

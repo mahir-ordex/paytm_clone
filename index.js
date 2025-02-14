@@ -6,6 +6,7 @@ const userRoute = require('./routes/userRoutes');
 const accountRoute = require('./routes/accountRoutes');
 const deskBoardRoute = require('./routes/deskBoardRoutes');
 const authenticateToken = require('./middleware/authMiddleware');
+var cookieParser = require('cookie-parser')
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/api/users', userRoute);
 app.use('/api/account', accountRoute);

@@ -19,6 +19,10 @@ const transaction = async (req, res) => {
         // Convert to ObjectId
         const senderObjectId = new mongoose.Types.ObjectId(senderId);
         const receiverObjectId = new mongoose.Types.ObjectId(receiverId);
+         
+        if(senderObjectId === receiverObjectId) {
+            return res.status(400).json({ message: "Sender and receiver cannot be the same", success: false });
+        }
 
         const sender = await Account.findOne({ userId: senderObjectId });
         const receiver = await Account.findOne({ userId: receiverObjectId });
@@ -78,7 +82,7 @@ const transactionHistory = async(req,res) =>{
         const id= req.params.id;
         if(!id) return res.status(400).send('Please provide user id')
 
-        const allTransaction =await Transaction.find({$or:[{senderId:id},{receiverId:id}]})
+        const allTransaction =await Transaction.find({$or:[{senderId:id},{receiverId:id}]}).populate("senderId").populate("receiverId").sort({"timestamp":-1})
         res.status(200).json({message:'Transaction History', transactions:allTransaction})
     }catch(err){
         console.error('Transaction History Failed:', err.message);
@@ -86,4 +90,18 @@ const transactionHistory = async(req,res) =>{
     }
 }
 
-module.exports = {transaction,transactionHistory};
+const userBalance = async(req,res) =>{
+    try{
+        const id= req.params.id;
+        if(!id) return res.status(400).send('Please provide user id')
+            
+        const user = await Account.findOne({userId:id}).select('balance')
+        res.status(200).json({message:'User Balance', balance:user.balance})
+        
+    }catch(err){
+        console.error('User Balance Failed:', err.message);
+        res.status(500).send(`Something Went Wrong`);
+    }
+}
+
+module.exports = {transaction,transactionHistory,userBalance};
