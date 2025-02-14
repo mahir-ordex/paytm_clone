@@ -18,8 +18,23 @@ const DashBoard = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [amount, setAmount] = useState("");
     const { logout } = useAuth();
+    const [user,setUser] =useState("")
     const navigate = useNavigate();
     const LogedInUser = getUserData();
+      
+    async function logInUser() {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/get_userdata/${LogedInUser.user}`,
+                {withCredentials:true}
+            )
+            if(res.status === 200){
+                setUser(res.data.user)
+            }
+    
+        } catch (error) { 
+            console.error("Error fetching user data:", error);   
+        }
+    }
 
 
     const SendMoneyDialog = ({
@@ -161,6 +176,23 @@ const DashBoard = () => {
         );
     };
 
+    const handleLogout = async () => {
+        try {
+            const res = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/users/signout`,
+                { withCredentials: true } // Move here!
+            );
+            if (res.status === 200) {
+                logout();
+                navigate("/login");
+            }
+        } catch (error) {
+            setErrorMessage(
+                error.response?.data?.message || "LogOut failed. Please try again."
+            );
+        }
+    };
+    
 
     const [totalTransaction, setTotalTransaction] = useState(null)
 
@@ -168,12 +200,12 @@ const DashBoard = () => {
     const fetchPassbookData = async () => {
         try {
             const res = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}/account/transaction-history/${LogedInUser.user._id}`,
+                `${import.meta.env.VITE_BACKEND_URL}/account/transaction-history/${LogedInUser.user}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${LogedInUser.token}`
                     },
-                    withCredentials: true   
+                    withCredentials: true
                 },
             )
             setTotalTransaction(res.data.transactions)
@@ -184,7 +216,7 @@ const DashBoard = () => {
     }
 
     useEffect(() => {
-        console.log("totalTransaction   history:", totalTransaction);
+        // console.log("totalTransaction   history:", totalTransaction);
 
     }, [totalTransaction])
 
@@ -195,20 +227,21 @@ const DashBoard = () => {
         }
         handleShowData();
         fetchPassbookData()
+        logInUser();
     }, []);
 
 
     const handleShowData = async () => {
         try {
             const res = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}/daskboard/show-all-users/${LogedInUser.user._id}`,
+                `${import.meta.env.VITE_BACKEND_URL}/daskboard/show-all-users/${LogedInUser.user}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${LogedInUser.token}`
                     },
-                    withCredentials: true   
+                    withCredentials: true
                 },
-            );            
+            );
             setData(res.data);
         } catch (e) {
             console.error("Error fetching data:", e);
@@ -216,9 +249,9 @@ const DashBoard = () => {
     };
 
     const handleSendMoney = async () => {
-        console.log("SendMoney called :", LogedInUser.user._id,
-            selectedUser._id,
-            Number(amount));
+        // console.log("SendMoney called :", LogedInUser.user,
+        //     selectedUser._id,
+        //     Number(amount));
         try {
             if (!amount || isNaN(amount) || amount <= 0) {
                 alert("Please enter a valid amount.");
@@ -227,7 +260,7 @@ const DashBoard = () => {
             const res = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/account/transaction`,
                 {
-                    senderId: LogedInUser.user._id,
+                    senderId: LogedInUser.user,
                     receiverId: selectedUser._id,
                     amount: Number(amount)
                 },
@@ -235,13 +268,14 @@ const DashBoard = () => {
                     headers: {
                         'Authorization': `Bearer ${LogedInUser.token}`
                     },
-                    withCredentials: true   
+                    withCredentials: true
                 },
             );
 
             if (res.status === 200 && res.data.success) {
                 alert("Money sent successfully!");
                 handleShowData();
+                fetchPassbookData();
                 setShowModal(false);
                 setAmount("");
             }
@@ -264,20 +298,19 @@ const DashBoard = () => {
 
                         {LogedInUser && (
                             <div className="flex items-center space-x-4">
+                                <Link to="/profile" className='flex '>
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={LogedInUser.user.profilePicture} alt="profile" />
+                                    <AvatarImage src={user.profilePicture} alt="profile" />
                                     <AvatarFallback>
                                         <UserRound className="h-4 w-4" />
                                     </AvatarFallback>
                                 </Avatar>
-                                <span className="font-medium">{LogedInUser.user.firstName}</span>
+                                <span className="font-medium pt-1.5">{user.userName}</span>
+                                </Link>
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => {
-                                        logout();
-                                        navigate('/login');
-                                    }}
+                                    onClick={handleLogout}
                                 >
                                     <LogOut className="h-4 w-4 mr-2" />
                                     Logout
@@ -296,80 +329,80 @@ const DashBoard = () => {
                         {/* <CardDescription>Your latest transactions and transfers</CardDescription> */}
                     </CardHeader>
                     <CardContent>
-                                <Link to="/payment">
-                        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                            <div className="flex items-center space-x-4">
+                        <Link to="/payment">
+                            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                                <div className="flex items-center space-x-4">
                                     <ArrowUpDown className="h-8 w-8 text-blue-600" />
                                     <div>
                                         <p className="font-medium">Total Transactions</p>
                                         <p className="text-sm text-gray-500">Last 30 days</p>
                                     </div>
-                            </div>
-                            <p className="text-2xl font-semibold">
-                                ₹ {
-                                    totalTransaction && totalTransaction.length > 0 ?
-                                        totalTransaction.reduce((acc, curr) => acc + curr.amount, 0) : 0
-                                }
-
-                            </p>
-                    </div>
-                        </Link>
-                </CardContent>
-            </Card>
-
-            <ScrollArea className="h-[600px] rounded-md border p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {data?.users?.map((user, index) => (
-                        <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                            <CardContent className="p-6">
-                                <div className="flex flex-col items-center">
-                                    <Avatar className="h-20 w-20 mb-4">
-                                        <AvatarImage src={user.profilePicture} alt={user.firstName} />
-                                        <AvatarFallback>
-                                            <UserRound className="h-8 w-8" />
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <h3 className="text-lg font-semibold mb-2">
-                                        {user.firstName} {user.lastName}
-                                    </h3>
-                                    {user.lastTransaction ? (
-
-                                        <div className="text-sm text-gray-600 mb-4">
-                                            <p>Last Transaction:</p>
-                                            <p className="font-medium">₹ {user.lastTransaction.amount}</p>
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-gray-600 mb-4">No recent transactions</p>
-                                    )}
-                                    <Button
-                                        className="w-full"
-                                        onClick={() => {
-                                            setSelectedUser(user);
-                                            setShowModal(true);
-                                        }}
-                                    >
-                                        <Send className="h-4 w-4 mr-2" />
-                                        Send Money
-                                    </Button>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            </ScrollArea>
-        </div>
+                                <p className="text-2xl font-semibold">
+                                    ₹ {
+                                        totalTransaction && totalTransaction.length > 0 ?
+                                            totalTransaction.reduce((acc, curr) => acc + curr.amount, 0) : 0
+                                    }
 
-      {/* Send Money Dialog */ }
-    <SendMoneyDialog
-        open={showModal}
-        onOpenChange={setShowModal}
-        selectedUser={selectedUser}
-        onSendMoney={handleSendMoney}
-        amount={amount}
-        setAmount={setAmount}
-    />
-    </div >
-  );
+                                </p>
+                            </div>
+                        </Link>
+                    </CardContent>
+                </Card>
+
+                <ScrollArea className="h-[600px] rounded-md border p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {data?.users?.map((user, index) => (
+                            <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+                                <CardContent className="p-6">
+                                    <div className="flex flex-col items-center">
+                                        <Avatar className="h-20 w-20 mb-4">
+                                            <AvatarImage src={user.profilePicture} alt={user.firstName} />
+                                            <AvatarFallback>
+                                                <UserRound className="h-8 w-8" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <h3 className="text-lg font-semibold mb-2">
+                                            {user.firstName} {user.lastName}
+                                        </h3>
+                                        {user.lastTransaction ? (
+
+                                            <div className="text-sm text-gray-600 mb-4">
+                                                <p>Last Transaction:</p>
+                                                <p className="font-medium">₹ {user.lastTransaction.amount}</p>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-gray-600 mb-4">No recent transactions</p>
+                                        )}
+                                        <Button
+                                            className="w-full"
+                                            onClick={() => {
+                                                setSelectedUser(user);
+                                                setShowModal(true);
+                                            }}
+                                        >
+                                            <Send className="h-4 w-4 mr-2" />
+                                            Send Money
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </div>
+
+            {/* Send Money Dialog */}
+            <SendMoneyDialog
+                open={showModal}
+                onOpenChange={setShowModal}
+                selectedUser={selectedUser}
+                onSendMoney={handleSendMoney}
+                amount={amount}
+                setAmount={setAmount}
+            />
+        </div >
+    );
 };
 
 export default DashBoard;

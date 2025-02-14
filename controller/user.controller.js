@@ -7,13 +7,13 @@ require('dotenv').config()
 const Sign_Up = async (req, res) => {
   try {
     const { userName, firstName, lastName, password } = req.body;
-    console.log("object: " + userName, firstName, lastName, password);
+    // console.log("object: " + userName, firstName, lastName, password);
 
     if (!userName || !firstName || !lastName || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
     const existingUser = await User.findOne({ userName });
-    console.log("existingUser: " + existingUser);
+    // console.log("existingUser: " + existingUser);
 
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -72,6 +72,44 @@ const signIn = async (req, res) => {
   }
 };
 
-module.exports = { Sign_Up, signIn };
+const getUserData = async(req, res) =>{
+  const id = req.params.id
+  try{
+    const user = await User.findById({_id: id},"-password");
+    if(!user){
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  }catch(error){
+    console.error("Error in getUserData:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+const updateUserProfile = async (req, res) => {
+  try {
+    const { id, ...updateFields } = req.body; 
+    // console.log("User profile updated to :" + updateFields + id);
+    const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    console.error("Error in updateUserProfile:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const signOut = async (req, res) => {
+  res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "None" })
+     .status(200)
+     .json({ message: "Logged out successfully" });
+};
+
+
+
+module.exports = { Sign_Up, signIn, getUserData, updateUserProfile, signOut};
 
 

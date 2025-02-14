@@ -9,9 +9,9 @@ const authenticateToken = (req, res, next) => {
         // Extract token from Cookie
         const cookieToken = req.cookies?.token || null;
 
-        console.log("Header Token:", headerToken);
-        console.log("Cookies received:", req.cookies);
-        console.log("Cookie Token:", cookieToken);
+        // console.log("Header Token:", headerToken);
+        // console.log("Cookies received:", req.cookies);
+        // console.log("Cookie Token:", cookieToken);
 
         // Check if both tokens exist
         if (!headerToken && !cookieToken) {

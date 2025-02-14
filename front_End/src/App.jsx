@@ -5,6 +5,7 @@ import DeskBoard from './Components/deskBoard';
 import './App.css';
 import PrivateRoute from './util/PriveteRoute';
 import Passbook from './Components/Passbook';
+import Profile from './Components/Profile';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/signup" element={<Sign_Up />} />
       <Route path="/" element={<PrivateRoute><DeskBoard /></PrivateRoute>} />
         <Route path="/payment" element={<PrivateRoute><Passbook /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
     </Routes>
   );

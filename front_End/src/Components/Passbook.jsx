@@ -22,14 +22,15 @@ function Passbook() {
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState(0);
 
-  const loginUser = getUserData();
+  const loggedInUserId = getUserData();
+//   console.log("loggedInUserId", loggedInUserId);
 
   const handleGetAccountBalance = async() => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/account/balance/${loginUser.user._id}`,{
+        `${import.meta.env.VITE_BACKEND_URL}/account/balance/${loggedInUserId.user}`,{
             headers: {
-              'Authorization': `Bearer ${loginUser.token}`
+              'Authorization': `Bearer ${loggedInUserId.token}`
             },
             withCredentials: true
         }
@@ -45,10 +46,10 @@ function Passbook() {
     try {
       setLoading(true);
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/account/transaction-history/${loginUser.user._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/account/transaction-history/${loggedInUserId.user}`,
         {
             headers: {
-              'Authorization': `Bearer ${loginUser.token}`
+              'Authorization': `Bearer ${loggedInUserId.token}`
             },
             withCredentials: true
         }
@@ -134,7 +135,7 @@ function Passbook() {
                 </thead>
                 <tbody>
                   {data?.transactions.map((tx) => {
-                    const isSender = tx?.senderId._id === loginUser.user._id;
+                    const isSender = tx?.senderId._id === loggedInUserId.user;
                     return (
                       <tr key={tx._id} className="border-b hover:bg-gray-50 transition-colors">
                         <td className="p-4 text-sm text-gray-600">{tx._id}</td>

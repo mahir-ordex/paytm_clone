@@ -4,8 +4,7 @@ const Account = require("../model/accountModel");
 
 const transaction = async (req, res) => {
     const { senderId, receiverId, amount } = req.body;
-
-    console.log("Transaction Request:", senderId, receiverId, amount);
+    // console.log("Transaction Request:", senderId, receiverId, amount);
 
     const session = await mongoose.startSession();
 
@@ -58,8 +57,7 @@ const transaction = async (req, res) => {
 
         await session.commitTransaction();
         session.endSession();
-
-        console.log("Transaction Successful");
+        // console.log("Transaction Successful");
         return res.status(200).json({
             message: "Transaction Successful",
             transaction: newTransaction[0],
@@ -82,13 +80,14 @@ const transactionHistory = async(req,res) =>{
         const id= req.params.id;
         if(!id) return res.status(400).send('Please provide user id')
 
-        const allTransaction =await Transaction.find({$or:[{senderId:id},{receiverId:id}]}).populate("senderId").populate("receiverId").sort({"timestamp":-1})
+        const allTransaction =await Transaction.find({$or:[{senderId:id},{receiverId:id}]}).populate("senderId","-password").populate("receiverId","-password").sort({"timestamp":-1})
         res.status(200).json({message:'Transaction History', transactions:allTransaction})
     }catch(err){
         console.error('Transaction History Failed:', err.message);
         res.status(500).send(`Something Went Wrong`);
     }
 }
+
 
 const userBalance = async(req,res) =>{
     try{

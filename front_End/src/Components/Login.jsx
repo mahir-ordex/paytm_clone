@@ -25,7 +25,7 @@ function Login() {
         { withCredentials: true }
       );
       if (res.status === 200 && res.data.success) {
-        login(res.data.user, res.data.token);
+        login(res.data.user._id, res.data.token);
         navigate("/");
       }
     } catch (error) {

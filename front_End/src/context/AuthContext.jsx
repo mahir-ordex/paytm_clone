@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true); // Add loading state
 
+// On refresh how Data is Still stays
     useEffect(() => {
         const savedToken = localStorage.getItem("token");
         const savedUser = localStorage.getItem("user");
@@ -23,8 +24,7 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
-    
-
+    //  Login and Logout functions
     const login = (data, token) => {
         setUser(data);
         setToken(token);
