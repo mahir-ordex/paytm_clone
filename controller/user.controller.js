@@ -34,7 +34,7 @@ const Sign_Up = async (req, res) => {
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
 
     res
-    .cookie("token", token, { httpOnly: true, expiresIn: "24h" })
+    .cookie("token", token, { httpOnly: true, expiresIn: "24h", sameSite:"None"})
     .status(201)
     .json({ message: "User registered successfully",token:token })
   } catch (error) {
@@ -65,7 +65,7 @@ const signIn = async (req, res) => {
     const token = jwt.sign({ userId: other._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
 
     res
-      .cookie("token", token, { httpOnly: true, expiresIn: "24h" })
+      .cookie("token", token, { httpOnly: true, expiresIn: "24h", sameSite:"None"})
       .status(200)
       .json({ message: "Login successful", user: other,token, success: true });
   } catch (error) {
