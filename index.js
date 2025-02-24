@@ -25,7 +25,7 @@ app.use('/api/account', accountRoute);
 app.use('/api/daskboard', deskBoardRoute);
 app.use('/api',messageRoute)
 
-mongoose.connect('mongodb://127.0.0.1:27017/paytm')
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Failed to connect to MongoDB', err));
 
