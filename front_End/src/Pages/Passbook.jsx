@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { getUserData } from '../util/commanFunction';
+import { getUserData } from '../util/commonFunction';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Alert, AlertDescription } from '../../components/ui/alert';

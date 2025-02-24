@@ -1,13 +1,17 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true);
+    const [socket, setSocket] = useState(null);
+    const [onlineUser, setOnlineUser] = useState([]);
+    const [newMessages,setNewMessages] =useState([])
 
-// On refresh how Data is Still stays
+    // On refresh, restore data from localStorage
     useEffect(() => {
         const savedToken = localStorage.getItem("token");
         const savedUser = localStorage.getItem("user");
@@ -24,7 +28,7 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
-    //  Login and Logout functions
+    // Login and Logout functions
     const login = (data, token) => {
         setUser(data);
         setToken(token);
@@ -37,12 +41,77 @@ export function AuthProvider({ children }) {
         setToken(null);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        disconnectSocket();
     };
 
-    if (loading) return <div>Loading...</div>; // Prevents redirect before checking
+    // WebSocket connection management
+    const connectSocket = () => {
+        console.log("Connectind socket ,",user);
+        if (!user) {
+            console.error("User ID is missing, cannot connect to WebSocket");
+            return;
+        }
+    
+        const newSocket = io("http://localhost:8000", {
+            query: { userId: user},
+            transports: ["websocket"],
+        });
+    
+        newSocket.on("connect", () => {
+            console.log("Connected to WebSocket", newSocket.id);
+        });
+    
+        newSocket.on("getOnlineUsers", (users) => {
+            setOnlineUser(users);
+        });
+    
+        setSocket(newSocket);
+    };
+    
+
+    const disconnectSocket = () => {
+        if (socket) {
+            socket.disconnect();
+            setSocket(null);
+        }
+    };
+
+    const getLiveMessage = () => {
+        if (!socket) return; // Ensure socket exists
+    
+        socket.on("newMessage", (newMsg) => {
+            setNewMessages((prevMessages) => [...prevMessages, newMsg]);
+        });
+    };
+    useEffect(() => {
+        if (!socket) return;
+    
+        const handleNewMessage = (newMsg) => {
+            setNewMessages((prevMessages) => [...prevMessages, newMsg]);
+        };
+    
+        socket.on("newMessage", handleNewMessage);
+    
+        return () => {
+            socket.off("newMessage", handleNewMessage); // Cleanup listener on unmount
+        };
+    }, [socket]);
+    
+        
+
+    // Automatically manage socket connection when user changes
+    useEffect(() => {
+        if (user) {
+            connectSocket();
+        } else {
+            disconnectSocket();
+        }
+    }, [user]);
+
+    if (loading) return <div>Loading...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser,newMessages}}>
             {children}
         </AuthContext.Provider>
     );

@@ -6,6 +6,7 @@ import './App.css';
 import PrivateRoute from './util/PriveteRoute';
 import Passbook from './Pages/Passbook';
 import Profile from './Pages/Profile';
+import Message from './Pages/Message';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/" element={<PrivateRoute><DeskBoard /></PrivateRoute>} />
         <Route path="/payment" element={<PrivateRoute><Passbook /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/message/:userName" element={<PrivateRoute><Message /></PrivateRoute>} />
 
     </Routes>
   );

@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const User = require("../model/userModel");
 const Account = require("../model/accountModel");
 const jwt = require("jsonwebtoken");
+const cloudinary = require("../Utils/cloudnarry");
+
 require('dotenv').config()
 
 const Sign_Up = async (req, res) => {
@@ -88,8 +90,16 @@ const getUserData = async(req, res) =>{
 const updateUserProfile = async (req, res) => {
   try {
     const { id, ...updateFields } = req.body; 
-    // console.log("User profile updated to :" + updateFields + id);
-    const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true });
+    console.log("Updating user profile",req.body);
+
+    // If a profile picture is provided, upload it to Cloudinary
+    if (updateFields.profilePicture) {
+      const result = await cloudinary.uploader.upload(updateFields.profilePicture, { folder: "users" });
+      updateFields.profilePicture = result.secure_url;
+    }
+
+    // FIX: Pass `updateFields` directly
+    const updatedUser = await User.findByIdAndUpdate(id, updateFields, { new: true }).select("-password");
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -101,6 +111,7 @@ const updateUserProfile = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 const signOut = async (req, res) => {
   res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "None" })
