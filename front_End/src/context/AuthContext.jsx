@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
 
         console.log("Connecting socket for user:", user);
 
-        const newSocket = io("wss://paytm-clone-green.vercel.app", {
+        const newSocket = io("https://bankingxchatting.onrender.com", {
             query: { userId: user }, // Directly passing user as ID
             transports: ["websocket", "polling"],
             withCredentials: true
