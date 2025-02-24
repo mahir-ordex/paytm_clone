@@ -13,8 +13,8 @@ var cookieParser = require('cookie-parser')
 
 
 app.use(cors({
-    origin: "*",  
-    credentials: true
+    origin: "https://paytm-clone-green.vercel.app", // Your Vercel frontend URL
+    credentials: true, // Allow credentials (cookies, authorization headers)
 }));
 
 app.use(express.json());
