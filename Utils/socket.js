@@ -4,20 +4,11 @@ const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = [
-    "https://paytm-clone-mahir-ordexs-projects.vercel.app",
-    "https://paytm-clone-green.vercel.app"
-];
+
 
 const io = new Server(server, {
     cors: {
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
+        origin:["https://paytm-clone-mahir-ordexs-projects.vercel.app", "https://paytm-clone-green.vercel.app"],
         credentials:true
     }
 });
