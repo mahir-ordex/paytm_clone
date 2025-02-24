@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const {app,io,server} = require("../Utils/socket")
+const {app,io,server} = require("./Utils/socket")
 const mongoose = require('mongoose');
 const path = require('path');
-const userRoute = require('../routes/userRoutes');
-const accountRoute = require('../routes/accountRoutes');
-const deskBoardRoute = require('../routes/deskBoardRoutes');
-const authenticateToken = require('../middleware/authMiddleware');
-const messageRoute = require('../routes/messageRoute')
+const userRoute = require('./routes/userRoutes');
+const accountRoute = require('./routes/accountRoutes');
+const deskBoardRoute = require('./routes/deskBoardRoutes');
+const authenticateToken = require('./middleware/authMiddleware');
+const messageRoute = require('./routes/messageRoute')
 var cookieParser = require('cookie-parser')
 
 
