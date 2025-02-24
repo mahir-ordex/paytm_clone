@@ -6,6 +6,7 @@ import { Input } from "../../components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../components/ui/dialog"
 import { ScrollArea } from "../../components/ui/scroll-area"
 import { UserRound, LogOut, Send, Wallet, ArrowUpDown } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { getUserData } from '../util/commonFunction';
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -19,13 +20,11 @@ const DashBoard = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [amount, setAmount] = useState("");
     const [searchQuery, setSearchQuery] = useState(''); //For Search Bar
-    const { logout,onlineUser } = useAuth();
+    const [notifyMsg, setNotifyMsg] = useState(false)
+    const { logout, onlineUser, newMessages } = useAuth();
     const [user, setUser] = useState("")
     const navigate = useNavigate();
     const LogedInUser = getUserData();
-
-    console.log("online user :",onlineUser);
-
 
     // Add function to filter users based on search
     const filteredUsers = data?.users?.filter(user => {
@@ -33,17 +32,22 @@ const DashBoard = () => {
         return fullName.includes(searchQuery.toLowerCase());
     });
 
+    useEffect(() => {
+        setNotifyMsg(true)
+        console.log("Messages :", newMessages);
+    }, [newMessages])
+
     async function logInUser() {
         try {
             const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/get_userdata/${LogedInUser.user}`,
-                {withCredentials:true}
+                { withCredentials: true }
             )
-            if(res.status === 200){
+            if (res.status === 200) {
                 setUser(res.data.user)
             }
 
         } catch (error) {
-            console.error("Error fetching user data:", error); 
+            console.error("Error fetching user data:", error);
         }
     }
 
@@ -226,10 +230,10 @@ const DashBoard = () => {
         }
     }
 
-    useEffect(() => {
-        // console.log("totalTransaction   history:", totalTransaction);
-
-    }, [totalTransaction])
+    const handleNavigateMessagePage = (id) => {
+        setNotifyMsg(false)
+        setTimeout(() => navigate(`/message/${id}`), 100);
+    }
 
     useEffect(() => {
         if (!LogedInUser?.token) {
@@ -239,7 +243,7 @@ const DashBoard = () => {
         handleShowAllData();
         fetchPassbookData()
         logInUser();
-    }, []);
+    }, [LogedInUser]);
 
 
     const handleShowAllData = async () => {
@@ -399,7 +403,7 @@ const DashBoard = () => {
                                             </AvatarFallback>
                                         </Avatar>
                                         <h3 className="text-lg font-semibold mb-2">
-                                            {user.firstName} {user.lastName} 
+                                            {user.firstName} {user.lastName}
                                         </h3>
 
                                         {onlineUser.includes(user._id) && <span className='bg-gray-300 border-black px-1'>online</span>}
@@ -412,26 +416,45 @@ const DashBoard = () => {
                                         ) : (
                                             <p className="text-sm text-gray-600 mb-4">No recent transactions</p>
                                         )}
-                                        <div className='flex'>
-                                        <Button
-                                            className="w-full"
-                                            onClick={() => {
-                                                setSelectedUser(user);
-                                                setShowModal(true);
-                                            }}
-                                        >
-                                            <Send className="h-4 w-4 mr-2" />
-                                            Send Money
-                                        </Button>
-                                        <Link to={`/message/${user._id}`}>
-                                        <Button
-                                            className="w-full bg-blue-500"
-                                        >
-                                            <Send className="h-4 w-4 mr-2" />
-                                            Send Message
-                                        </Button>
-                                        </Link>
+                                        <div className='flex' >
+                                            <Button
+                                                className="w-full"
+                                                onClick={() => {
+                                                    setSelectedUser(user);
+                                                    setShowModal(true);
+                                                }}
+                                            >
+                                                <Send className="h-4 w-4 mr-2" />
+                                                Send Money
+                                            </Button>
+                                            <div className='flex' >
+                                                <Button
+                                                    className="w-full bg-blue-500 "
+                                                    onClick={() => handleNavigateMessagePage(user._id)}
+                                                >
+                                                    <Send className="h-4 w-4 mr-2" />
+                                                    Send Message
+                                                </Button>
 
+                                                {notifyMsg && newMessages.length > 0 && (
+                                                    <div
+                                                        onClick={() => handleNavigateMessagePage(user._id)}
+                                                        className="relative cursor-pointer group"
+                                                    >
+                                                        <AlertCircle className="w-6 h-6 text-blue-500 transition-transform group-hover:scale-110" />
+
+                                                        {/* Store filtered messages count in a variable to avoid redundant filtering */}
+                                                        {(() => {
+                                                            const unreadCount = newMessages.filter((newMsg) => newMsg.senderId === user._id).length;
+                                                            return unreadCount > 0 ? (
+                                                                <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                                                                    {unreadCount}
+                                                                </div>
+                                                            ) : null;
+                                                        })()}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -439,10 +462,10 @@ const DashBoard = () => {
                         ))}
                     </div>
                 </ScrollArea>
-            </div>
+            </div >
 
             {/* Send Money Dialog */}
-            <SendMoneyDialog
+            < SendMoneyDialog
                 open={showModal}
                 onOpenChange={setShowModal}
                 selectedUser={selectedUser}
