@@ -31,7 +31,11 @@ if (!mongoURI) {
     process.exit(1);
 }
 
-mongoose.connect(mongoURI)
+mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000, 
+})
     .then(() => console.log("✅ MongoDB Connected Successfully!"))
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
 const PORT = process.env.PORT || 8000;
