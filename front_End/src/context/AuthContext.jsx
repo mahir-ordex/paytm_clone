@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null); // User is an ID, not an object
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState(null);
@@ -14,25 +14,21 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const savedToken = localStorage.getItem("token");
-        const savedUser = localStorage.getItem("user");
+        const savedUserId = localStorage.getItem("user");
 
-        try {
-            if (savedToken && savedUser) {
-                setToken(savedToken);
-                setUser(JSON.parse(savedUser));
-            }
-        } catch (error) {
-            console.error("Error parsing saved user:", error);
-        } finally {
-            setLoading(false);
+        if (savedToken && savedUserId) {
+            setToken(savedToken);
+            setUser(savedUserId); // Directly setting the user ID
         }
+
+        setLoading(false);
     }, []);
 
-    const login = (data, token) => {
-        setUser(data);
+    const login = (userId, token) => {
+        setUser(userId);
         setToken(token);
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(data));
+        localStorage.setItem("user", userId);
     };
 
     const logout = () => {
@@ -40,11 +36,7 @@ export function AuthProvider({ children }) {
         setToken(null);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-
-        if (socket) {
-            socket.disconnect();
-            setSocket(null);
-        }
+        disconnectSocket();
     };
 
     const connectSocket = () => {
@@ -55,9 +47,9 @@ export function AuthProvider({ children }) {
 
         console.log("Connecting socket for user:", user);
 
-        const newSocket = io(import.meta.env.BASE_URL, {
-            query: { userId: user},
-            transports: ["websocket", "polling"],  
+        const newSocket = io("wss://paytm-clone-green.vercel.app", {
+            query: { userId: user }, // Directly passing user as ID
+            transports: ["websocket", "polling"],
             withCredentials: true
         });
 
@@ -72,11 +64,29 @@ export function AuthProvider({ children }) {
         setSocket(newSocket);
     };
 
+    const disconnectSocket = () => {
+        if (socket) {
+            socket.disconnect();
+            setSocket(null);
+            console.log("🛑 Disconnected from WebSocket");
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            connectSocket();
+        } else {
+            disconnectSocket();
+        }
+
+        return () => disconnectSocket();
+    }, [user]);
+
     useEffect(() => {
         if (!socket) return;
 
         const handleNewMessage = (newMsg) => {
-            const isMessageSentFromSelectedUser = newMsg.senderId === selectedUser._id;
+            const isMessageSentFromSelectedUser = newMsg.senderId === selectedUser;
             if (!isMessageSentFromSelectedUser) return;
             setNewMessages((prevMessages) => [...prevMessages, newMsg]);
         };
@@ -87,13 +97,6 @@ export function AuthProvider({ children }) {
             socket.off("newMessage", handleNewMessage);
         };
     }, [socket, selectedUser]);
-
-    useEffect(() => {
-        if (user) {
-            connectSocket();
-        }
-        return () => disconnectSocket();
-    }, [user]);
 
     if (loading) return <div>Loading...</div>;
 
