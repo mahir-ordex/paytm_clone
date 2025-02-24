@@ -1,9 +1,17 @@
-export function getUserData(){
+export function getUserData() {
     const userData = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    const user = JSON.parse(userData)
-    if(!token ||!user){
+
+    let user;
+    try {
+        user = JSON.parse(userData); // Only parse if it's valid JSON
+    } catch (error) {
+        user = userData; // If parsing fails, assume it's a string (user ID)
+    }
+
+    if (!token || !user) {
         return null;
     }
-    return {token: token,user};
+
+    return { token, user };
 }

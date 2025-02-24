@@ -3,7 +3,7 @@ import Login from './Pages/Login';
 import Sign_Up from './Pages/Sign_Up';
 import DeskBoard from './Pages/deskBoard';
 import './App.css';
-import PrivateRoute from './util/PriveteRoute';
+import PrivateRoute from './util/PrivateRoute';
 import Passbook from './Pages/Passbook';
 import Profile from './Pages/Profile';
 import Message from './Pages/Message';

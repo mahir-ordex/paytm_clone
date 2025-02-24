@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
 
         console.log("Connecting socket for user:", user);
 
-        const newSocket = io("https://bankingxchatting.onrender.com", {
+        const newSocket = io("http://localhost:8000", {
             query: { userId: user }, // Directly passing user as ID
             transports: ["websocket", "polling"],
             withCredentials: true

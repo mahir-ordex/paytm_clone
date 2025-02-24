@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 
 const DashBoard = () => {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [amount, setAmount] = useState("");
     const [searchQuery, setSearchQuery] = useState(''); //For Search Bar

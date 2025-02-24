@@ -5,10 +5,8 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const allowedOrigins = [
-    "https://paytm-clone-mahir-ordexs-projects.vercel.app",
-    "https://paytm-clone-green.vercel.app",
-    "https://paytm-clone-nine-nu.vercel.app",
-    "https://paytm-clone-e7ljvdrvs-mahir-ordexs-projects.vercel.app" // New deployment
+    "http://localhost:5173",
+    "http://localhost:5174"
 ];
 
 const io = new Server(server, {
