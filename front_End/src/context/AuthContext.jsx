@@ -9,7 +9,8 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState(null);
     const [onlineUser, setOnlineUser] = useState([]);
-    const [newMessages,setNewMessages] =useState([])
+    const [newMessages,setNewMessages] =useState([]);
+    const [selectedUser,setSelectedUser] =useState(null);
 
     // On refresh, restore data from localStorage
     useEffect(() => {
@@ -52,7 +53,7 @@ export function AuthProvider({ children }) {
             return;
         }
     
-        const newSocket = io("http://localhost:8000", {
+        const newSocket = io(import.meta.env.BASE_URL, {
             query: { userId: user},
             transports: ["websocket"],
         });
@@ -76,17 +77,13 @@ export function AuthProvider({ children }) {
         }
     };
 
-    const getLiveMessage = () => {
-        if (!socket) return; // Ensure socket exists
-    
-        socket.on("newMessage", (newMsg) => {
-            setNewMessages((prevMessages) => [...prevMessages, newMsg]);
-        });
-    };
     useEffect(() => {
         if (!socket) return;
     
         const handleNewMessage = (newMsg) => {
+            const isMessageSentFromSelectedUser = newMsg.senderId === selectedUser._id;
+           if (!isMessageSentFromSelectedUser) return;
+
             setNewMessages((prevMessages) => [...prevMessages, newMsg]);
         };
     
@@ -111,7 +108,7 @@ export function AuthProvider({ children }) {
     if (loading) return <div>Loading...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser,newMessages}}>
+        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser,newMessages,setSelectedUser,selectedUser}}>
             {children}
         </AuthContext.Provider>
     );

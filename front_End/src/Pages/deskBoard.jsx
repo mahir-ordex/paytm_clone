@@ -17,11 +17,10 @@ import { Search, X } from 'lucide-react';
 const DashBoard = () => {
     const [data, setData] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
     const [amount, setAmount] = useState("");
     const [searchQuery, setSearchQuery] = useState(''); //For Search Bar
     const [notifyMsg, setNotifyMsg] = useState(false)
-    const { logout, onlineUser, newMessages } = useAuth();
+    const { logout, onlineUser, newMessages, setSelectedUser, selectedUser} = useAuth();
     const [user, setUser] = useState("")
     const navigate = useNavigate();
     const LogedInUser = getUserData();
