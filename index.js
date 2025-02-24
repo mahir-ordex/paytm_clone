@@ -15,7 +15,8 @@ var cookieParser = require('cookie-parser')
 const allowedOrigins = [
     "https://paytm-clone-mahir-ordexs-projects.vercel.app",
     "https://paytm-clone-green.vercel.app",
-    "paytm-clone-nine-nu.vercel.app",
+    "https://paytm-clone-nine-nu.vercel.app",
+    "https://paytm-clone-e7ljvdrvs-mahir-ordexs-projects.vercel.app" // New deployment
 ];
 
 app.use(cors({
@@ -23,6 +24,7 @@ app.use(cors({
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.error("Blocked by CORS:", origin);
             callback(new Error("Not allowed by CORS"));
         }
     },

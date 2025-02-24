@@ -4,12 +4,17 @@ const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
-
+const allowedOrigins = [
+    "https://paytm-clone-mahir-ordexs-projects.vercel.app",
+    "https://paytm-clone-green.vercel.app",
+    "https://paytm-clone-nine-nu.vercel.app",
+    "https://paytm-clone-e7ljvdrvs-mahir-ordexs-projects.vercel.app" // New deployment
+];
 
 const io = new Server(server, {
     cors: {
-        origin:["https://paytm-clone-mahir-ordexs-projects.vercel.app", "https://paytm-clone-green.vercel.app","paytm-clone-nine-nu.vercel.app"],
-        credentials:true
+        origin: allowedOrigins, // Use updated allowedOrigins array
+        credentials: true
     }
 });
 
