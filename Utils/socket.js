@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin:["https://paytm-clone-mahir-ordexs-projects.vercel.app", "https://paytm-clone-green.vercel.app"],
+        origin:["https://paytm-clone-mahir-ordexs-projects.vercel.app", "https://paytm-clone-green.vercel.app","paytm-clone-nine-nu.vercel.app"],
         credentials:true
     }
 });
