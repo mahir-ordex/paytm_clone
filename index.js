@@ -25,10 +25,15 @@ app.use('/api/account', accountRoute);
 app.use('/api/daskboard', deskBoardRoute);
 app.use('/api',messageRoute)
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Failed to connect to MongoDB', err));
+const mongoURI = process.env.MONGO_URI;
+if (!mongoURI) {
+    console.error("❌ MongoDB URI is missing. Check your .env file.");
+    process.exit(1);
+}
 
+mongoose.connect(mongoURI)
+    .then(() => console.log("✅ MongoDB Connected Successfully!"))
+    .catch(err => console.error("❌ MongoDB Connection Error:", err));
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
