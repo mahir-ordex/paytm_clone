@@ -9,10 +9,9 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState(null);
     const [onlineUser, setOnlineUser] = useState([]);
-    const [newMessages,setNewMessages] =useState([]);
-    const [selectedUser,setSelectedUser] =useState(null);
+    const [newMessages, setNewMessages] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
 
-    // On refresh, restore data from localStorage
     useEffect(() => {
         const savedToken = localStorage.getItem("token");
         const savedUser = localStorage.getItem("user");
@@ -29,7 +28,6 @@ export function AuthProvider({ children }) {
         }
     }, []);
 
-    // Login and Logout functions
     const login = (data, token) => {
         setUser(data);
         setToken(token);
@@ -42,73 +40,65 @@ export function AuthProvider({ children }) {
         setToken(null);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        disconnectSocket();
-    };
 
-    // WebSocket connection management
-    const connectSocket = () => {
-        console.log("Connectind socket ,",user);
-        if (!user) {
-            console.error("User ID is missing, cannot connect to WebSocket");
-            return;
-        }
-    
-        const newSocket = io(import.meta.env.BASE_URL, {
-            query: { userId: user},
-            transports: ["websocket"],
-        });
-    
-        newSocket.on("connect", () => {
-            console.log("Connected to WebSocket", newSocket.id);
-        });
-    
-        newSocket.on("getOnlineUsers", (users) => {
-            setOnlineUser(users);
-        });
-    
-        setSocket(newSocket);
-    };
-    
-
-    const disconnectSocket = () => {
         if (socket) {
             socket.disconnect();
             setSocket(null);
         }
     };
 
+    const connectSocket = () => {
+        if (!user) {
+            console.error("User ID is missing, cannot connect to WebSocket");
+            return;
+        }
+
+        console.log("Connecting socket for user:", user);
+
+        const newSocket = io(import.meta.env.BASE_URL, {
+            query: { userId: user},
+            transports: ["websocket", "polling"],  
+            withCredentials: true
+        });
+
+        newSocket.on("connect", () => {
+            console.log("✅ Connected to WebSocket", newSocket.id);
+        });
+
+        newSocket.on("getOnlineUsers", (users) => {
+            setOnlineUser(users);
+        });
+
+        setSocket(newSocket);
+    };
+
     useEffect(() => {
         if (!socket) return;
-    
+
         const handleNewMessage = (newMsg) => {
             const isMessageSentFromSelectedUser = newMsg.senderId === selectedUser._id;
-           if (!isMessageSentFromSelectedUser) return;
-
+            if (!isMessageSentFromSelectedUser) return;
             setNewMessages((prevMessages) => [...prevMessages, newMsg]);
         };
-    
-        socket.on("newMessage", handleNewMessage);
-    
-        return () => {
-            socket.off("newMessage", handleNewMessage); // Cleanup listener on unmount
-        };
-    }, [socket]);
-    
-        
 
-    // Automatically manage socket connection when user changes
+        socket.on("newMessage", handleNewMessage);
+
+        return () => {
+            socket.off("newMessage", handleNewMessage);
+        };
+    }, [socket, selectedUser]);
+
     useEffect(() => {
         if (user) {
             connectSocket();
-        } else {
-            disconnectSocket();
         }
+        return () => disconnectSocket();
     }, [user]);
 
     if (loading) return <div>Loading...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser,newMessages,setSelectedUser,selectedUser}}>
+        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser, newMessages, setSelectedUser, selectedUser }}>
             {children}
         </AuthContext.Provider>
     );
