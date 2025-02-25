@@ -102,8 +102,11 @@ function Message() {
         {
           receiverId: receiver._id,
           text: message,
+        },{
+        headers: {
+          'Authorization': `Bearer ${LogedInUser.token}`
         },
-        { withCredentials: true }
+          withCredentials: true }
       );
 
       console.log("message send part");
