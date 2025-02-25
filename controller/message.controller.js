@@ -42,42 +42,45 @@ const handleShowAllMessages = async (req, res) => {
 }
 
 const handleSendMessage = async (req, res) => {
-    try{
-        const {receiverId,...message} = req.body;
+    try {
+        const { receiverId, ...message } = req.body;
         const senderId = req.user.userId;
-        // console.log("meassage request body : ",message);
 
-        if(!receiverId || !message){
-            res.status(400).json({msg:"Invalid Parameter"})
+        if (!receiverId || (!message.text && !message.image)) {
+            return res.status(400).json({ msg: "Invalid Parameter" });
         }
+
         const receiverData = await User.findById(receiverId);
-        if(!receiverData){
-            res.status(404).json({msg:"Receiver Not Found !"})
-        }
-        if(message.image){
-           const result =await cloudinary.uploader.upload(message.image, { folder: "messages" });
-           message.image = result.secure_url;
+        if (!receiverData) {
+            return res.status(404).json({ msg: "Receiver Not Found!" });
         }
 
-        
-        const newMessage = new Message ({senderId,receiverId,...message,timestamp:new Date()})
-        // console.log("message :",newMessage);
-        
+        if (message.image) {
+            const result = await cloudinary.uploader.upload(message.image, { folder: "messages" });
+            message.image = result.secure_url;
+        }
+
+        const newMessage = new Message({
+            senderId,
+            receiverId,
+            ...message,
+            timestamp: new Date(),
+        });
         await newMessage.save();
-        const receiverSocketId = getReceiverSocketId(receiverId);
 
-        if(receiverSocketId){
-            io.to(receiverSocketId).emit("newMessage",newMessage)
+        console.log("Receiver ID:", receiverId);
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        console.log("Receiver Socket ID:", {receiverSocketId});
+
+        if (receiverSocketId) { 
+            io.to(receiverSocketId).emit("newMessage", newMessage);
         }
 
-        res.status(200).json({mgs:"Succsessfull !"})
-
-
+        res.status(200).json({ success: true, newMessage });
     } catch (error) {
-        console.error('Send Message Failed:', error.message);
-        res.status(500).send(`Something Went Wrong`);
-    
+        console.error("Send Message Failed:", error.message);
+        res.status(500).json({ msg: "Something Went Wrong" });
     }
-}
+};
 
 module.exports = { handleShowAllMessages, handleSendMessage};

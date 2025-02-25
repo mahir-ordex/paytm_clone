@@ -25,6 +25,10 @@ function Message() {
   const scrollRef = useRef(null);
   const {newMessages, onlineUser} = useAuth()
 
+  useEffect(()=>{
+    console.log("newMessages in socket : ",newMessages);
+  },[newMessages])
+
   async function logInUser() {
     try {
       const res = await axios.get(
@@ -90,6 +94,7 @@ function Message() {
 
   useEffect(() => {
     setMessages((prevMessages) => [...prevMessages, ...newMessages]); 
+    console.log("notify message : ",newMessages);
     setNotifyMsg(true)
 }, [newMessages]);
 
@@ -110,11 +115,8 @@ function Message() {
       );
 
       console.log("message send part");
-
-      if (message.trim()) {
         setMessage("");
         handleGetMessages();
-      }
     } catch (error) {
       console.log("Fetching Error :", error);
     }
@@ -125,6 +127,7 @@ function Message() {
     if(e.key.trim() ==="Enter"){
       handleSend();
       handleGetMessages();
+      setMessage('')
     }
   }
 

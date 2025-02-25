@@ -14,32 +14,40 @@ const allowedOrigins = [
 
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins, // Use updated allowedOrigins array
+        origin: allowedOrigins,
         credentials: true
     }
 });
 
- function getReceiverSocketId(userId) {
-    return userSocketMap[userId];
-  }
+const userSocketMap = {}; // Store user socket mapping
 
-const userSocketMap = {};
+// Function to get the receiver's socket ID
+function getReceiverSocketId(userId) {
+    console.log("User Socket Map:", userSocketMap);
+    return userSocketMap[userId] || null; // Return null if user is offline
+}
 
+// Socket connection handling
 io.on("connection", (socket) => {
-    console.log("A user connected", socket.id);
+    console.log("A user connected:", socket.id, "Query:", socket.handshake.query);
 
     const userId = socket.handshake.query.userId;
-    if (userId) userSocketMap[userId] = socket.id;
+    if (!userId) {
+        console.log("User ID is missing in the socket connection!");
+        return;
+    }
 
-    // Notify all clients about online users
+    userSocketMap[userId] = socket.id;
+    console.log(`User ${userId} mapped to socket ${socket.id}`);
+
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
     socket.on("disconnect", () => {
-        console.log("A user disconnected", socket.id);
+        console.log("A user disconnected:", socket.id);
         delete userSocketMap[userId];
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
     });
 });
 
-// Corrected export statement
-module.exports = { io, app, server, getReceiverSocketId};
+
+module.exports = { io, app, server, getReceiverSocketId };

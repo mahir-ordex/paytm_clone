@@ -20,7 +20,8 @@ const DashBoard = () => {
     const [amount, setAmount] = useState("");
     const [searchQuery, setSearchQuery] = useState(''); //For Search Bar
     const [notifyMsg, setNotifyMsg] = useState(false)
-    const { logout, onlineUser, newMessages, setSelectedUser, selectedUser} = useAuth();
+    const [selectedUser, setSelectedUser] = useState('')
+    const { logout, onlineUser, newMessages,} = useAuth();
     const [user, setUser] = useState("")
     const navigate = useNavigate();
     const LogedInUser = getUserData();

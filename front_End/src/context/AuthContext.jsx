@@ -10,7 +10,6 @@ export function AuthProvider({ children }) {
     const [socket, setSocket] = useState(null);
     const [onlineUser, setOnlineUser] = useState([]);
     const [newMessages, setNewMessages] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
         const savedToken = localStorage.getItem("token");
@@ -18,7 +17,7 @@ export function AuthProvider({ children }) {
 
         if (savedToken && savedUserId) {
             setToken(savedToken);
-            setUser(savedUserId); // Directly setting the user ID
+            setUser(savedUserId);
         }
 
         setLoading(false);
@@ -46,7 +45,7 @@ export function AuthProvider({ children }) {
         }
 
         console.log("Connecting socket for user:", user);
-
+// "https://bankingxchatting.onrender.com"
         const newSocket = io("https://bankingxchatting.onrender.com", {
             query: { userId: user }, // Directly passing user as ID
             transports: ["websocket", "polling"],
@@ -60,7 +59,6 @@ export function AuthProvider({ children }) {
         newSocket.on("getOnlineUsers", (users) => {
             setOnlineUser(users);
         });
-
         setSocket(newSocket);
     };
 
@@ -81,27 +79,27 @@ export function AuthProvider({ children }) {
 
         return () => disconnectSocket();
     }, [user]);
+    
 
+    
     useEffect(() => {
         if (!socket) return;
 
         const handleNewMessage = (newMsg) => {
-            const isMessageSentFromSelectedUser = newMsg.senderId === selectedUser;
-            if (!isMessageSentFromSelectedUser) return;
             setNewMessages((prevMessages) => [...prevMessages, newMsg]);
         };
-
         socket.on("newMessage", handleNewMessage);
 
         return () => {
             socket.off("newMessage", handleNewMessage);
         };
-    }, [socket, selectedUser]);
+    }, [socket]);
+    
 
     if (loading) return <div>Loading...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser, newMessages, setSelectedUser, selectedUser }}>
+        <AuthContext.Provider value={{ user, token, login, logout, socket, onlineUser, newMessages }}>
             {children}
         </AuthContext.Provider>
     );
