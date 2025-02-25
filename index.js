@@ -16,7 +16,8 @@ const allowedOrigins = [
     "https://paytm-clone-mahir-ordexs-projects.vercel.app",
     "https://paytm-clone-green.vercel.app",
     "https://paytm-clone-nine-nu.vercel.app",
-    "https://paytm-clone-e7ljvdrvs-mahir-ordexs-projects.vercel.app" // New deployment
+    "https://paytm-clone-e7ljvdrvs-mahir-ordexs-projects.vercel.app",
+    "http://localhost:5173"
 ];
 
 app.use(cors({
@@ -31,9 +32,8 @@ app.use(cors({
     credentials: true
 }));
 
-
+app.use(cookieParser());
 app.use(express.json());
-app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")));
 app.use('/api/users', userRoute);
 app.use('/api/account', accountRoute);

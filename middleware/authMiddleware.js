@@ -6,21 +6,20 @@ const authenticateToken = (req, res, next) => {
         const authHeader = req.headers["authorization"];
         const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
 
-        // Extract token from Cookie
-        const cookieToken = req.cookies?.token || null;
-
-        // console.log("Header Token:", headerToken);
+        const cookieToken = req.cookies.token
+        console.log("Header Token:", headerToken);
         // console.log("Cookies received:", req.cookies);
-        // console.log("Cookie Token:", cookieToken);
+        console.log("Cookie Token:", cookieToken);
+        console.log("Cookies:", req.cookies);
 
         // Check if both tokens exist
         if (!headerToken && !cookieToken) {
-            return res.status(401).json({ message: "Unauthorized - No token provided" });
+            return res.status(403).json({ message: "Unauthorized - No token provided" });
         }
 
         // Ensure both tokens match (if both exist)
         if (headerToken && cookieToken && headerToken !== cookieToken) {
-            return res.status(401).json({ message: "Unauthorized - Token mismatch" });
+            return res.status(403).json({ message: "Unauthorized - Token mismatch" });
         }
 
         // Determine which token to verify (prefer header if both exist)

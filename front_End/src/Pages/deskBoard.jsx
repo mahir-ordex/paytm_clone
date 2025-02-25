@@ -201,7 +201,7 @@ const DashBoard = () => {
                 navigate("/login");
             }
         } catch (error) {
-            setErrorMessage(
+            setError(
                 error.response?.data?.message || "LogOut failed. Please try again."
             );
         }
@@ -242,7 +242,7 @@ const DashBoard = () => {
         handleShowAllData();
         fetchPassbookData()
         logInUser();
-    }, [LogedInUser]);
+    }, []);
 
 
     const handleShowAllData = async () => {
@@ -263,33 +263,22 @@ const DashBoard = () => {
     };
 
     const handleSendMoney = async () => {
-        // console.log("SendMoney called :", LogedInUser.user,
-        //     selectedUser._id,
-        //     Number(amount));
+        if (!amount || isNaN(amount) || amount <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+    
         try {
-            if (!amount || isNaN(amount) || amount <= 0) {
-                alert("Please enter a valid amount.");
-                return;
-            }
             const res = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/account/transaction`,
-                {
-                    senderId: LogedInUser.user,
-                    receiverId: selectedUser._id,
-                    amount: Number(amount)
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${LogedInUser.token}`
-                    },
-                    withCredentials: true
-                },
+                { senderId: LogedInUser.user, receiverId: selectedUser._id, amount: Number(amount) },
+                { headers: { 'Authorization': `Bearer ${LogedInUser.token}` }, withCredentials: true }
             );
-
+    
             if (res.status === 200 && res.data.success) {
                 alert("Money sent successfully!");
-                handleShowAllData();
-                fetchPassbookData();
+                
+                await Promise.all([handleShowAllData(), fetchPassbookData()]); // Ensure both updates finish
                 setShowModal(false);
                 setAmount("");
             }
@@ -298,6 +287,7 @@ const DashBoard = () => {
             alert("An error occurred while sending money.");
         }
     };
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
